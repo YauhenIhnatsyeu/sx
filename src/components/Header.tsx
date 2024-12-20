@@ -1,3 +1,7 @@
 export const Header = () => {
-    return <header>SearchX</header>;
+    return (
+        <header>
+            <h1>SearchX</h1>
+        </header>
+    );
 };

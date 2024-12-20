@@ -1,10 +1,31 @@
 import { IArticle, HistoryItem, HistoryItemStringified } from './models';
 import articles from './assets/articles.json';
 import { useLocalStorage } from 'react-use';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export const useArticles = (): IArticle[] => {
     return articles;
+};
+
+export const useFocus = (classesToBeClicked: string[]): [boolean, (value: boolean) => void] => {
+    const [focused, setFocused] = useState(false);
+
+    const handleMouseDown = useCallback(
+        (e: MouseEvent) => {
+            const targetClassList = (e.target as HTMLElement).classList;
+
+            setFocused(classesToBeClicked.some((className) => targetClassList.contains(className)));
+        },
+        [classesToBeClicked],
+    );
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleMouseDown);
+
+        return () => document.removeEventListener('mousedown', handleMouseDown);
+    }, [handleMouseDown]);
+
+    return [focused, setFocused];
 };
 
 export const useHistory = <T>(key: string, equalsFn: (a: T, b: T) => boolean = (a, b) => a === b) => {

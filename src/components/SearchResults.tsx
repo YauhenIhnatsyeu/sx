@@ -14,9 +14,9 @@ export const SearchResults = ({ search }: Props) => {
     );
 
     return (
-        <section>
+        <section className="search-result-list-container">
             {searchArticles.map((article) => (
-                <Article article={article} />
+                <Article key={article.title} article={article} />
             ))}
         </section>
     );

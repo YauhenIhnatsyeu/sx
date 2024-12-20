@@ -9,7 +9,7 @@ import { SearchResults } from './components/SearchResults';
 
 function App() {
     const articles = useArticles();
-    const { items: autocompleteHistory, set: setHistory } = useHistory<string>('autocomplete');
+    const { items: autocompleteHistory, set: setHistory, remove: removeHistory } = useHistory<string>('autocomplete');
     const [search, setSearch] = useState('');
 
     const searchTitles = useCallback(
@@ -30,7 +30,7 @@ function App() {
                 )
                 .slice(0, AUTOCOMPLETE_LIMIT - titlesFromHistory.length);
             const result = [
-                ...titlesFromHistory.map((title) => ({ value: title, used: true }) as IAutocompleteItem),
+                ...titlesFromHistory.map((title) => ({ value: title, visited: true }) as IAutocompleteItem),
                 ...searchedTitles.map((article) => ({ value: article.title }) as IAutocompleteItem),
             ];
 
@@ -40,7 +40,7 @@ function App() {
     );
 
     const handleSearch = (search: string, autocomplete?: IAutocompleteItem) => {
-        setSearch(search);
+        setSearch(autocomplete ? autocomplete.value : search);
 
         if (autocomplete) {
             setHistory(autocomplete.value);
@@ -51,7 +51,14 @@ function App() {
         <>
             <Header />
             <main>
-                <SearchBar getAutocomplete={searchTitles} onSearch={handleSearch} autoFocus />
+                <div className="search-bar-container">
+                    <SearchBar
+                        getAutocomplete={searchTitles}
+                        onSearch={handleSearch}
+                        autoFocus
+                        onAutocompleteRemove={(autocomplete) => removeHistory(autocomplete.value)}
+                    />
+                </div>
                 <SearchResults search={search} />
             </main>
             <footer></footer>

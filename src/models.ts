@@ -14,5 +14,5 @@ export interface HistoryItemStringified<T> extends Omit<HistoryItem<T>, 'lastVie
 
 export interface IAutocompleteItem {
     value: string;
-    used?: boolean;
+    visited?: boolean;
 }

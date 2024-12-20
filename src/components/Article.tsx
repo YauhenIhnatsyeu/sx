@@ -6,9 +6,15 @@ interface Props {
 
 export const Article = ({ article }: Props) => {
     return (
-        <article>
-            <h6>{article.title}</h6>
-            <p>{article.description}</p>
+        <article className="search-result-item">
+            <a
+                className="search-result-item__title"
+                href={`https://www.google.com/search?q=${article.title}`}
+                target="_blank"
+            >
+                {article.title}
+            </a>
+            <p className="search-result-item_description">{article.description}</p>
         </article>
     );
 };
