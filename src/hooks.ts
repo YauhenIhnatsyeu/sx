@@ -1,12 +1,11 @@
 import { HistoryItem, IAutocompleteItem, PersistedStore, Store } from './models';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { AUTOCOMPLETE_LIMIT } from './constants';
 import { fetchArticles, fetchAutocomplete } from './api';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getLocalStorageWithDatePersistence } from './utils';
-import { v4 as uuid } from 'uuid';
 
 export const useArticles = (search: string) => {
     const { page, setPage } = useStore();
@@ -72,23 +71,11 @@ export const usePersistedStore = create<PersistedStore>()(
 
 export const useAutocomplete = (search: string) => {
     const { autocompleteHistory, setAutocompleteHistory } = usePersistedStore();
-    const { data: searchedArticles = [] } = useQuery({
+    const { data = [] } = useQuery({
         queryKey: ['autocomplete', search],
         queryFn: async ({ signal }) => (search ? (await fetchAutocomplete(search, signal)).articles : []),
         placeholderData: keepPreviousData,
     });
-    const titlesFromHistory = autocompleteHistory
-        .filter((article) => article.payload.toLowerCase().startsWith(search.toLowerCase()))
-        .sort((a, b) => b.lastViewed.getTime() - a.lastViewed.getTime())
-        .slice(0, AUTOCOMPLETE_LIMIT)
-        .map((article) => article.payload);
-    const searchedTitles = searchedArticles
-        .filter((article) => !titlesFromHistory.includes(article.title))
-        .slice(0, AUTOCOMPLETE_LIMIT - titlesFromHistory.length);
-    const result = [
-        ...titlesFromHistory.map((title) => ({ value: title, visited: true, id: uuid() }) as IAutocompleteItem),
-        ...searchedTitles.map((article) => ({ value: article.title, id: uuid() }) as IAutocompleteItem),
-    ];
 
     const setHistory = useCallback(
         (payload: string) => {
@@ -116,5 +103,24 @@ export const useAutocomplete = (search: string) => {
         [autocompleteHistory, setAutocompleteHistory],
     );
 
-    return { autocomplete: result, setHistory, removeHistory };
+    const autocomplete = useMemo(() => {
+        // Getting saved titles from history, sorting them by last time they were used and cutting them if history length is more than limit
+        const titlesFromHistory = autocompleteHistory
+            .filter((article) => article.payload.toLowerCase().startsWith(search.toLowerCase()))
+            .sort((a, b) => b.lastViewed.getTime() - a.lastViewed.getTime())
+            .slice(0, AUTOCOMPLETE_LIMIT)
+            .map((article) => article.payload);
+        // Getting articles from the server, checking if there're some articles from the history and cutting them if articles + history length is more than limit
+        const searchedArticles = data
+            .filter((article) => !titlesFromHistory.includes(article.title))
+            .slice(0, AUTOCOMPLETE_LIMIT - titlesFromHistory.length);
+
+        // Combining articles from the server with the history into array of autocomplete items
+        return [
+            ...titlesFromHistory.map((title) => ({ value: title, visited: true }) as IAutocompleteItem),
+            ...searchedArticles.map((article) => ({ value: article.title }) as IAutocompleteItem),
+        ];
+    }, [autocompleteHistory, data, search]);
+
+    return { autocomplete, setHistory, removeHistory };
 };

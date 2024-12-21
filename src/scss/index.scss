@@ -13,15 +13,9 @@ h1 {
     font-weight: bold;
 }
 
-i {
-    &.clickable:hover {
-        cursor: pointer;
-    }
-
-    img {
-        width: 20px;
-        height: 20px;
-    }
+.icon {
+    width: 20px;
+    height: 20px;
 }
 
 a {
@@ -87,18 +81,18 @@ header {
 
     &__input-cross {
         $height: 30px;
+
+        width: 30px;
+        height: $height;
         position: absolute;
         top: calc($search-bar-height / 2 - $height / 2);
         right: 15px;
-
-        img {
-            width: 30px;
-            height: $height;
-        }
+        cursor: pointer;
     }
 
     .autocomplete-list-container {
         position: absolute;
+        box-sizing: border-box;
         top: $search-bar-height;
         left: 0;
         width: 100%;
@@ -174,9 +168,13 @@ header {
     padding-bottom: 15px;
     border-bottom: 1px solid #f1f3f4;
     background-color: #fff;
-    font-family: Arial, sans-serif;
     transition: background-color 0.3s ease;
     margin-bottom: 15px;
+
+    &__link-group {
+        display: block;
+        margin-bottom: 10px;
+    }
 
     &__title {
         font-size: 18px;
@@ -202,7 +200,6 @@ header {
         color: #006621;
         text-decoration-color: #006621;
         line-height: 1.5;
-        margin-top: 8px;
     }
 }
 

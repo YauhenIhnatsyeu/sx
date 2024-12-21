@@ -20,6 +20,7 @@ export const Pagination = ({ page, count, onChange }: Props) => {
             )}
             {pages.map((p) => (
                 <a
+                    key={p}
                     className={`pagination__page ${page === p ? 'pagination__page--active' : ''}`}
                     onClick={() => onChange(p)}
                 >

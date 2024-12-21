@@ -5,14 +5,14 @@ import { IAutocompleteItem } from '../models';
 import { SearchResults } from './SearchResults';
 
 export const Searcher = () => {
-    const [dirtySearch, setDirtySearch] = useState('');
-    const [search, setSearch] = useState('');
-    const { autocomplete, setHistory, removeHistory } = useAutocomplete(dirtySearch);
+    const [changingSearch, setChangingSearch] = useState('');
+    const [confirmedSearch, setConfirmedSearch] = useState('');
+    const { autocomplete, setHistory, removeHistory } = useAutocomplete(changingSearch);
 
-    useArticles(search);
+    useArticles(confirmedSearch);
 
     const handleSearch = (search: string, autocomplete?: IAutocompleteItem) => {
-        setSearch(autocomplete ? autocomplete.value : search);
+        setConfirmedSearch(autocomplete ? autocomplete.value : search);
 
         if (autocomplete) {
             setHistory(autocomplete.value);
@@ -25,12 +25,12 @@ export const Searcher = () => {
                 <SearchBar
                     autocomplete={autocomplete}
                     onSearch={handleSearch}
-                    onChange={setDirtySearch}
+                    onChange={setChangingSearch}
                     autoFocus
                     onAutocompleteRemove={(autocomplete) => removeHistory(autocomplete.value)}
                 />
             </div>
-            <SearchResults search={search} />
+            <SearchResults search={confirmedSearch} />
         </>
     );
 };

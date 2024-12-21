@@ -9,20 +9,9 @@ export interface HistoryItem<T> {
     lastViewed: Date;
 }
 
-export interface HistoryItemStringified<T> extends Omit<HistoryItem<T>, 'lastViewed'> {
-    lastViewed: string;
-}
-
 export interface IAutocompleteItem {
-    id: string;
     value: string;
     visited?: boolean;
-}
-
-export interface IPost {
-    id: string;
-    title: string;
-    body: string;
 }
 
 export interface Store {

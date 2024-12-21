@@ -3,6 +3,8 @@ import { IAutocompleteItem } from '../../models';
 import { AutocompleteItem } from './AutocompleteItem';
 import { useFocus } from '../../hooks';
 import { Icon } from '../Icon';
+import CrossIcon from '../../assets/icons/cross.svg';
+
 
 interface Props {
     autocomplete: IAutocompleteItem[];
@@ -46,6 +48,7 @@ export const SearchBar = ({ autocomplete, onSearch, onChange, autoFocus, onAutoc
 
     const handleClear = () => {
         setSearch('');
+        setFocused(true);
         inputRef.current!.focus();
     };
 
@@ -66,20 +69,20 @@ export const SearchBar = ({ autocomplete, onSearch, onChange, autoFocus, onAutoc
                     onKeyUp={handleKeyUp}
                     placeholder="Search..."
                 />
-                {search && <Icon className="search-bar__input-cross" type="cross" onClick={handleClear} />}
+                {search && <img className="icon search-bar__input-cross" src={CrossIcon} onClick={handleClear} />}
             </div>
             {showAutocomplete && (
-                <section className="autocomplete-list-container">
-                    {autocomplete.map((item) => (
+                <div className="autocomplete-list-container">
+                    {autocomplete.map((item, i) => (
                         <AutocompleteItem
-                            key={item.id}
+                            key={i}
                             search={search}
                             item={item}
                             onClick={() => handleSearch(item)}
                             onRemove={() => handleAutocompleteRemove(item)}
                         />
                     ))}
-                </section>
+                </div>
             )}
         </div>
     );

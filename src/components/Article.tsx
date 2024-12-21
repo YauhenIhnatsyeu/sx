@@ -10,7 +10,7 @@ export const Article = ({ article }: Props) => {
 
     return (
         <article className="search-result-item">
-            <a href={url} target="_blank">
+            <a href={url} target="_blank" className="search-result-item__link-group">
                 <span className="search-result-item__title">{article.title}</span>
                 <br />
                 <span className="search-result-item__url">{url}</span>

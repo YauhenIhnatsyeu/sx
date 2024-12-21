@@ -26,7 +26,6 @@ export const fetchArticles = async (search: string, page: number, signal?: Abort
 
     return {
         articles: data.query.search.map((s) => ({ id: s.pageid, title: s.title, description: s.snippet }) as IArticle),
-        // .filter((article) => article.title.toLowerCase().includes(search.toLowerCase())),
         totalResultss: data.query.searchinfo.totalhits,
     };
 };

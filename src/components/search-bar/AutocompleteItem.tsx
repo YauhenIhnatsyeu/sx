@@ -1,8 +1,9 @@
 import { useHoverDirty } from 'react-use';
 import { IAutocompleteItem } from '../../models';
-import { Icon } from '../Icon';
 import { MouseEventHandler, useRef } from 'react';
 import { findIntersectionStopIndex } from '../../utils';
+import HistoryIcon from '../../assets/icons/history.svg';
+import SearchIcon from '../../assets/icons/search.svg';
 
 interface Props {
     search: string;
@@ -34,7 +35,7 @@ export const AutocompleteItem = ({ search, item, onClick, onRemove }: Props) => 
             onMouseDown={onClick}
         >
             <div className="autocomplete-item__icon-string-container">
-                <Icon type={item.visited ? 'history' : 'search'} />
+                <img className="icon" src={item.visited ? HistoryIcon : SearchIcon} />
                 <span>
                     {beginning}
                     <span className="autocomplete-item__end">{end}</span>

@@ -8,7 +8,6 @@ const App = () => {
             <main>
                 <Searcher />
             </main>
-            <footer></footer>
         </>
     );
 };
