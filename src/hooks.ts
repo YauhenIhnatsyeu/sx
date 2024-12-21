@@ -1,10 +1,34 @@
-import { IArticle, HistoryItem, HistoryItemStringified } from './models';
-import articles from './assets/articles.json';
-import { useLocalStorage } from 'react-use';
+import { IArticle, HistoryItem, IAutocompleteItem, Store } from './models';
 import { useCallback, useEffect, useState } from 'react';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { AUTOCOMPLETE_LIMIT } from './constants';
+import { fetchPosts } from './api';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { getLocalStorageWithDatePersistence } from './utils';
 
-export const useArticles = (): IArticle[] => {
-    return articles;
+export const useArticles = (search: string) => {
+    const { data, isFetching } = useQuery({
+        queryKey: ['articles', search],
+        queryFn: async () => {
+            const { posts, total } = await fetchPosts(search);
+            const articles = posts
+                .map(
+                    (post) => ({ id: post.id, title: post.title.replace('.', ''), description: post.body }) as IArticle,
+                )
+                .filter((article) => article.title.toLowerCase().includes(search.toLowerCase()));
+
+            return { articles, totalResults: total };
+        },
+        enabled: !!search,
+        placeholderData: keepPreviousData,
+    });
+
+    return {
+        articles: data?.articles ?? [],
+        totalResult: data?.totalResults ?? 0,
+        loading: isFetching,
+    };
 };
 
 export const useFocus = (classesToBeClicked: string[]): [boolean, (value: boolean) => void] => {
@@ -28,45 +52,76 @@ export const useFocus = (classesToBeClicked: string[]): [boolean, (value: boolea
     return [focused, setFocused];
 };
 
-export const useHistory = <T>(key: string, equalsFn: (a: T, b: T) => boolean = (a, b) => a === b) => {
-    const [items, setToLocalStorage] = useLocalStorage<HistoryItem<T>[]>(key, [], {
-        raw: false,
-        serializer: (value) => JSON.stringify(value),
-        // JSON.stringify saves dates as ISO strings, so when returning them back from local storage they need to be parsed back to Date
-        deserializer: (json) =>
-            (JSON.parse(json) as HistoryItemStringified<T>[]).map((x) => ({
-                ...x,
-                lastViewed: new Date(x.lastViewed),
-            })),
+const useStore = create<Store>()(
+    persist(
+        (set) => ({
+            autocompleteHistory: [],
+            setAutocompleteHistory: (history: HistoryItem<string>[]) => set({ autocompleteHistory: history }),
+        }),
+        {
+            name: 'store',
+            storage: getLocalStorageWithDatePersistence(),
+        },
+    ),
+);
+
+export const useAutocomplete = (search: string) => {
+    const { autocompleteHistory, setAutocompleteHistory } = useStore();
+
+    const { data: searchedArticles = [] } = useQuery({
+        queryKey: ['autocomplete', search],
+        queryFn: async () => {
+            if (!search) {
+                return [];
+            }
+
+            const { posts } = await fetchPosts(search);
+            const articles = posts
+                .map(
+                    (post) => ({ id: post.id, title: post.title.replace('.', ''), description: post.body }) as IArticle,
+                )
+                .filter((article) => article.title.toLowerCase().startsWith(search.toLowerCase()));
+            return articles;
+        },
+        placeholderData: keepPreviousData,
     });
+    const titlesFromHistory = autocompleteHistory
+        .filter((article) => article.payload.toLowerCase().startsWith(search.toLowerCase()))
+        .sort((a, b) => b.lastViewed.getTime() - a.lastViewed.getTime())
+        .map((article) => article.payload);
+    const searchedTitles = searchedArticles
+        .filter((article) => !titlesFromHistory.includes(article.title))
+        .slice(0, AUTOCOMPLETE_LIMIT - titlesFromHistory.length);
+    const result = [
+        ...titlesFromHistory.map((title) => ({ value: title, visited: true }) as IAutocompleteItem),
+        ...searchedTitles.map((article) => ({ value: article.title }) as IAutocompleteItem),
+    ];
 
-    const set = useCallback(
-        (payload: T) => {
-            if (items?.find((x) => equalsFn(x.payload, payload))) {
-                setToLocalStorage(
-                    items.map((x) => (equalsFn(x.payload, payload) ? { ...x, lastViewed: new Date() } : x)),
+    const setHistory = useCallback(
+        (payload: string) => {
+            if (autocompleteHistory?.find((x) => x.payload === payload)) {
+                setAutocompleteHistory(
+                    autocompleteHistory.map((x) => (x.payload === payload ? { ...x, lastViewed: new Date() } : x)),
                 );
+            } else {
+                const newItem: HistoryItem<string> = { payload, lastViewed: new Date() };
 
+                setAutocompleteHistory(autocompleteHistory ? [...autocompleteHistory, newItem] : [newItem]);
+            }
+        },
+        [autocompleteHistory, setAutocompleteHistory],
+    );
+
+    const removeHistory = useCallback(
+        (payload: string) => {
+            if (!autocompleteHistory) {
                 return;
             }
 
-            const newItem: HistoryItem<T> = { payload, lastViewed: new Date() };
-
-            setToLocalStorage(items ? [...items, newItem] : [newItem]);
+            setAutocompleteHistory(autocompleteHistory.filter((x) => x.payload !== payload));
         },
-        [equalsFn, items, setToLocalStorage],
+        [autocompleteHistory, setAutocompleteHistory],
     );
 
-    const remove = useCallback(
-        (payload: T) => {
-            if (!items) {
-                return;
-            }
-
-            setToLocalStorage(items.filter((x) => !equalsFn(x.payload, payload)));
-        },
-        [equalsFn, items, setToLocalStorage],
-    );
-
-    return { items: items ?? [], set, remove };
+    return { autocomplete: result, setHistory, removeHistory };
 };

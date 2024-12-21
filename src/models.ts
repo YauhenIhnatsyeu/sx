@@ -1,4 +1,5 @@
 export interface IArticle {
+    id: string;
     title: string;
     description: string;
 }
@@ -15,4 +16,20 @@ export interface HistoryItemStringified<T> extends Omit<HistoryItem<T>, 'lastVie
 export interface IAutocompleteItem {
     value: string;
     visited?: boolean;
+}
+
+export interface IPost {
+    id: string;
+    title: string;
+    body: string;
+}
+
+export interface DummyDTO {
+    posts: IPost[];
+    total: number;
+}
+
+export interface Store {
+    autocompleteHistory: HistoryItem<string>[];
+    setAutocompleteHistory: (history: HistoryItem<string>[]) => void;
 }

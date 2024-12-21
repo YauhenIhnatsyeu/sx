@@ -2,6 +2,7 @@ import { useHoverDirty } from 'react-use';
 import { IAutocompleteItem } from '../../models';
 import { Icon } from '../Icon';
 import { MouseEventHandler, useRef } from 'react';
+import { findIntersectionStopIndex } from '../../utils';
 
 interface Props {
     search: string;
@@ -11,8 +12,9 @@ interface Props {
 }
 
 export const AutocompleteItem = ({ search, item, onClick, onRemove }: Props) => {
-    const beginning = search.toLowerCase();
-    const end = item.value.substring(search.length).toLowerCase();
+    const index = findIntersectionStopIndex(search, item.value);
+    const beginning = item.value.substring(0, index).toLowerCase();
+    const end = item.value.substring(index).toLowerCase();
     const ref = useRef<HTMLDivElement>(null);
     const hovered = useHoverDirty(ref);
 

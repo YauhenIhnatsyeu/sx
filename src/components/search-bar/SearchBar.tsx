@@ -1,28 +1,30 @@
-import { ChangeEvent, KeyboardEvent, useDeferredValue, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { IAutocompleteItem } from '../../models';
 import { AutocompleteItem } from './AutocompleteItem';
 import { useFocus } from '../../hooks';
 import { Icon } from '../Icon';
+import { useDebounce } from 'react-use';
 
 interface Props {
-    getAutocomplete: (search: string) => Promise<IAutocompleteItem[]>;
+    autocomplete: IAutocompleteItem[];
     onSearch: (search: string, autocomplete?: IAutocompleteItem) => void;
+    onChange: (search: string) => void;
     autoFocus?: boolean;
     onAutocompleteRemove?: (autocomplete: IAutocompleteItem) => void;
 }
 
-export const SearchBar = ({ getAutocomplete, onSearch, autoFocus, onAutocompleteRemove }: Props) => {
+export const SearchBar = ({ autocomplete, onSearch, onChange, autoFocus, onAutocompleteRemove }: Props) => {
     const [search, setSearch] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState(search);
     const [focused, setFocused] = useFocus(['search-bar__input', 'autocomplete-item__delete']);
-    const [autocomplete, setAutocomplete] = useState<IAutocompleteItem[]>([]);
     const showAutocomplete = autocomplete.length > 0 && focused;
-    const deferredSearch = useDeferredValue(search);
     const inputRef = useRef<HTMLInputElement>(null);
+    const [, cancelDebounce] = useDebounce(() => setDebouncedSearch(search), 250, [search]);
 
     const handleSearch = (autocomplete?: IAutocompleteItem) => {
+        cancelDebounce();
         onSearch(search, autocomplete);
-        setAutocomplete([]);
-        inputRef.current!.blur();
+        setFocused(false);
 
         if (autocomplete) {
             setSearch(autocomplete.value.toLowerCase());
@@ -52,10 +54,8 @@ export const SearchBar = ({ getAutocomplete, onSearch, autoFocus, onAutocomplete
     };
 
     useEffect(() => {
-        getAutocomplete(deferredSearch).then((result) => {
-            setAutocomplete(result);
-        });
-    }, [deferredSearch, getAutocomplete]);
+        onChange(debouncedSearch);
+    }, [debouncedSearch, onChange]);
 
     return (
         <div className="search-bar">
@@ -77,7 +77,7 @@ export const SearchBar = ({ getAutocomplete, onSearch, autoFocus, onAutocomplete
                     {autocomplete.map((item) => (
                         <AutocompleteItem
                             key={item.value}
-                            search={search}
+                            search={debouncedSearch}
                             item={item}
                             onClick={() => handleSearch(item)}
                             onRemove={() => handleAutocompleteRemove(item)}
