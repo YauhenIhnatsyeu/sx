@@ -1,1 +1,3 @@
 export const AUTOCOMPLETE_LIMIT = 10;
+export const PAGE_SIZE = 10;
+export const PAGINATION_MAX_VISIBLE_PAGES_COUNT = 10;

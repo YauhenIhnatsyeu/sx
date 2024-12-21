@@ -50,3 +50,6 @@ export const getLocalStorageWithDatePersistence = <T>(): PersistStorage<T> | und
         localStorage.removeItem(name);
     },
 });
+
+export const generateSequentialArray = (from: number, to: number) =>
+    Array.from({ length: to - from + 1 }, (_, i) => i + from);

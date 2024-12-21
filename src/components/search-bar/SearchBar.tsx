@@ -3,7 +3,6 @@ import { IAutocompleteItem } from '../../models';
 import { AutocompleteItem } from './AutocompleteItem';
 import { useFocus } from '../../hooks';
 import { Icon } from '../Icon';
-import { useDebounce } from 'react-use';
 
 interface Props {
     autocomplete: IAutocompleteItem[];
@@ -15,14 +14,11 @@ interface Props {
 
 export const SearchBar = ({ autocomplete, onSearch, onChange, autoFocus, onAutocompleteRemove }: Props) => {
     const [search, setSearch] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState(search);
     const [focused, setFocused] = useFocus(['search-bar__input', 'autocomplete-item__delete']);
     const showAutocomplete = autocomplete.length > 0 && focused;
     const inputRef = useRef<HTMLInputElement>(null);
-    const [, cancelDebounce] = useDebounce(() => setDebouncedSearch(search), 250, [search]);
 
     const handleSearch = (autocomplete?: IAutocompleteItem) => {
-        cancelDebounce();
         onSearch(search, autocomplete);
         setFocused(false);
 
@@ -54,8 +50,8 @@ export const SearchBar = ({ autocomplete, onSearch, onChange, autoFocus, onAutoc
     };
 
     useEffect(() => {
-        onChange(debouncedSearch);
-    }, [debouncedSearch, onChange]);
+        onChange(search);
+    }, [onChange, search]);
 
     return (
         <div className="search-bar">
@@ -76,8 +72,8 @@ export const SearchBar = ({ autocomplete, onSearch, onChange, autoFocus, onAutoc
                 <section className="autocomplete-list-container">
                     {autocomplete.map((item) => (
                         <AutocompleteItem
-                            key={item.value}
-                            search={debouncedSearch}
+                            key={item.id}
+                            search={search}
                             item={item}
                             onClick={() => handleSearch(item)}
                             onRemove={() => handleAutocompleteRemove(item)}

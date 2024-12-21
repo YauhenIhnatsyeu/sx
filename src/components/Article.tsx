@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { IArticle } from '../models';
 
 interface Props {
@@ -5,16 +6,19 @@ interface Props {
 }
 
 export const Article = ({ article }: Props) => {
+    const url = `https://en.wikipedia.org/wiki/${article.title}`;
+
     return (
         <article className="search-result-item">
-            <a
-                className="search-result-item__title"
-                href={`https://www.google.com/search?q=${article.title}`}
-                target="_blank"
-            >
-                {article.title}
+            <a href={url} target="_blank">
+                <span className="search-result-item__title">{article.title}</span>
+                <br />
+                <span className="search-result-item__url">{url}</span>
             </a>
-            <p className="search-result-item_description">{article.description}</p>
+            <p
+                className="search-result-item_description"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.description) }}
+            ></p>
         </article>
     );
 };
