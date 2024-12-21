@@ -2,9 +2,7 @@ import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { IAutocompleteItem } from '../../models';
 import { AutocompleteItem } from './AutocompleteItem';
 import { useFocus } from '../../hooks';
-import { Icon } from '../Icon';
 import CrossIcon from '../../assets/icons/cross.svg';
-
 
 interface Props {
     autocomplete: IAutocompleteItem[];

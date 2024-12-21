@@ -4,8 +4,48 @@
 $search-bar-width: 584px;
 $search-bar-height: 44px;
 
+@mixin light-theme {
+    --background-color: #fff;
+    --text-color: #000;
+    --gray-color: #4d5156;
+    --green-color: #006621;
+    --blue-color: #4285f4;
+    --placeholder-color: #9aa0a6;
+    --border-color: #dfe1e5;
+    --border-filter: brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%) hue-rotate(324deg) brightness(96%) contrast(104%);
+    --shadow-color: rgba(32, 33, 36, 0.28);
+    --visited-color: #551a8b;
+    --hover-filter: brightness(0.95);
+    --link-color: #1a0dab;
+}
+
+@mixin dark-theme {
+    --background-color: #202124;
+    --text-color: #fff;
+    --gray-color: #fff;
+    --green-color: #4c9a2a;
+    --blue-color: #4285f4;
+    --placeholder-color: #9aa0a6;
+    --border-color: #fff;
+    --border-filter: brightness(0) saturate(100%) invert(95%) sepia(9%) saturate(74%) hue-rotate(182deg) brightness(92%) contrast(96%);
+    --shadow-color: rgba(255, 255, 255, 0.28);
+    --visited-color: #8a2be2;
+    --hover-filter: brightness(1.25);
+    --link-color: #1e90ff;
+}
+
+body.light {
+    @include light-theme;
+}
+
+body.dark {
+    @include dark-theme;
+}
+
 body {
     font-family: "Roboto", serif;
+    color: var(--text-color);
+    background-color: var(--background-color);
 }
 
 h1 {
@@ -16,6 +56,7 @@ h1 {
 .icon {
     width: 20px;
     height: 20px;
+    filter: var(--border-filter);
 }
 
 a {
@@ -51,26 +92,25 @@ header {
         height: $search-bar-height;
         box-sizing: border-box;
         padding: 0 50px 0 16px;
-        border: 1px solid #dfe1e5;
+        border: 1px solid var(--border-color);
         border-radius: 24px;
         font-size: 16px;
         line-height: 20px;
-        background-color: #fff;
-        color: #202124;
-        box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-        transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        box-shadow: 0 1px 6px var(--shadow-color);
 
         &:focus {
             outline: none;
         }
 
         &::placeholder {
-            color: #9aa0a6;
+            color: var(--placeholder-color)
         }
 
         &:hover {
             border-color: #dfe1e5;
-            box-shadow: 0 1px 6px rgba(32, 33, 36, 0.4);
+            box-shadow: 0 1px 6px var(--shadow-color);
         }
 
         &--with-autocomplete {
@@ -96,10 +136,10 @@ header {
         top: $search-bar-height;
         left: 0;
         width: 100%;
-        background-color: #fff;
-        border: 1px solid #dfe1e5;
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
         border-radius: 0 0 24px 24px;
-        box-shadow: 0 4px 6px rgba(32, 33, 36, 0.28);
+        box-shadow: 0 4px 6px var(--shadow-color);
         overflow: hidden;
         z-index: 1000;
     }
@@ -112,20 +152,16 @@ header {
         padding: 12px 16px;
         font-size: 16px;
         line-height: 20px;
-        color: #202124;
+        color: var(--text-color);
         cursor: pointer;
-        background-color: #fff;
+        background-color: var(--background-color);
 
         &:hover {
-            background-color: #f1f3f4;
+            filter: var(--hover-filter);
         }
 
         &:active {
-            background-color: #e8eaed;
-        }
-
-        &.highlighted {
-            background-color: #e8f0fe;
+            filter: var(--hover-filter);
         }
 
         &__icon-string-container {
@@ -142,13 +178,13 @@ header {
             z-index: 9999;
 
             &:hover {
-                color: #1a0dab;
+                color: var(--link-color);
                 text-decoration: underline;
             }
         }
 
         &--visited {
-            color: #551a8b;
+            color: var(--visited-color);
         }
     }
 }
@@ -159,16 +195,15 @@ header {
     max-width: 1000px;
 
     &__total-results {
-        color: #4d5156;
+        color: var(--gray-color);
         margin-bottom: 25px;
     }
 }
 
 .search-result-item {
     padding-bottom: 15px;
-    border-bottom: 1px solid #f1f3f4;
-    background-color: #fff;
-    transition: background-color 0.3s ease;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--background-color);
     margin-bottom: 15px;
 
     &__link-group {
@@ -179,7 +214,7 @@ header {
     &__title {
         font-size: 18px;
         font-weight: 500;
-        color: #1a0dab;
+        color: var(--link-color);
         line-height: 1.3;
         margin-bottom: 4px;
 
@@ -190,16 +225,20 @@ header {
 
     &__description {
         font-size: 14px;
-        color: #4d5156;
+        color: var(--gray-color);
         line-height: 1.6;
         margin: 0;
     }
 
     &__url {
         font-size: 12px;
-        color: #006621;
-        text-decoration-color: #006621;
+        color: var(--green-color);
+        text-decoration-color: var(--green-color);
         line-height: 1.5;
+    }
+
+    &:last-of-type {
+        border-bottom: none;
     }
 }
 
@@ -215,7 +254,7 @@ header {
     column-gap: 7px;
 
     &__page {
-        color: #4285f4;
+        color: var(--blue-color);
         font-size: 18px;
 
         &:hover {
@@ -224,7 +263,7 @@ header {
         }
 
         &--active {
-            color:  #000;
+            color:  var(--text-color);
         }
     }
 
@@ -232,10 +271,23 @@ header {
         margin: 0 5px;
         padding: 5px 10px;
         font-size: 16px;
-        background-color: #fff;
-        border: 1px solid #ccc;
+        color: var(--text-color);
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
         border-radius: 25px;
         cursor: pointer;
         outline: none;
+    }
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 35px;
+    height: 35px;
+
+    &:hover {
+        cursor: pointer;
     }
 }

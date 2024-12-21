@@ -10,6 +10,7 @@ interface Props {
 export const SearchResults = ({ search }: Props) => {
     const { articles, loading, totalResults } = useArticles(search);
     const { page, setPage } = useStore();
+    const pagesCount = Math.ceil(totalResults / PAGE_SIZE);
 
     return (
         <section className="search-result-list-container">
@@ -23,8 +24,8 @@ export const SearchResults = ({ search }: Props) => {
                     {articles.map((article) => (
                         <Article key={article.id} article={article} />
                     ))}
-                    {articles.length > 0 && (
-                        <Pagination page={page} count={Math.floor(totalResults / PAGE_SIZE)} onChange={setPage} />
+                    {articles.length > 0 && pagesCount > 1 && (
+                        <Pagination page={page} count={pagesCount} onChange={setPage} />
                     )}
                 </>
             )}

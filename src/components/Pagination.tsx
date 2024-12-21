@@ -10,7 +10,6 @@ interface Props {
 export const Pagination = ({ page, count, onChange }: Props) => {
     const maxPages = Math.min(count, PAGINATION_MAX_VISIBLE_PAGES_COUNT);
     const pages = generateSequentialArray(page > maxPages ? page - maxPages + 1 : 1, page > maxPages ? page : maxPages);
-
     return (
         <div className="pagination">
             {page > 1 && (

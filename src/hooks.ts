@@ -1,11 +1,14 @@
 import { HistoryItem, IAutocompleteItem, PersistedStore, Store } from './models';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { AUTOCOMPLETE_LIMIT } from './constants';
 import { fetchArticles, fetchAutocomplete } from './api';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getLocalStorageWithDatePersistence } from './utils';
+import { ThemeContext } from './contexts';
+
+export const useTheme = () => useContext(ThemeContext);
 
 export const useArticles = (search: string) => {
     const { page, setPage } = useStore();
@@ -17,6 +20,7 @@ export const useArticles = (search: string) => {
         },
         enabled: !!search,
         placeholderData: keepPreviousData,
+        refetchOnWindowFocus: false,
     });
 
     useEffect(() => {
@@ -75,6 +79,7 @@ export const useAutocomplete = (search: string) => {
         queryKey: ['autocomplete', search],
         queryFn: async ({ signal }) => (search ? (await fetchAutocomplete(search, signal)).articles : []),
         placeholderData: keepPreviousData,
+        refetchOnWindowFocus: false,
     });
 
     const setHistory = useCallback(

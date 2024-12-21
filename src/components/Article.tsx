@@ -16,7 +16,7 @@ export const Article = ({ article }: Props) => {
                 <span className="search-result-item__url">{url}</span>
             </a>
             <p
-                className="search-result-item_description"
+                className="search-result-item__description"
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.description) }}
             ></p>
         </article>

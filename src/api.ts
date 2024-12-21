@@ -18,7 +18,7 @@ export const fetchAutocomplete = async (search: string, signal?: AbortSignal) =>
 
 export const fetchArticles = async (search: string, page: number, signal?: AbortSignal) => {
     const response = await fetch(
-        `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${search}*&format=json&origin=*&srlimit=100&srsort=just_match&srlimit=${PAGE_SIZE}&sroffset=${(page - 1) * PAGE_SIZE}`,
+        `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${search}*&format=json&origin=*&srsort=just_match&srlimit=${PAGE_SIZE}&sroffset=${(page - 1) * PAGE_SIZE}`,
         { signal },
     );
 
