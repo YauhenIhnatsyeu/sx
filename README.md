@@ -1,7 +1,7 @@
 **Stack**
 
 - React 18
-- React Query 5
+- TanStack Query 5
 - Zustand
 
 **Project setup**
